@@ -1,0 +1,204 @@
+!
+! ==========================================
+! KBU Campus Network Infrastructure
+! Main Building Router Configuration
+! Device: Cisco 1841 Router
+! Purpose: Main Building Gateway, Routing,
+!          Security, and Server Access Control
+! ==========================================
+!
+
+version 12.4
+
+!
+! Basic Device Configuration
+!
+
+hostname MB-Router
+
+!
+! Disable unnecessary services
+!
+
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+
+!
+! Disable Cisco Express Forwarding
+! (Packet Tracer default)
+!
+
+no ip cef
+no ipv6 cef
+
+
+!
+! VPN Concept Configuration
+! Demonstration of IPsec VPN settings
+! Packet Tracer supports limited VPN simulation
+!
+
+crypto isakmp policy 10
+ encr aes 256
+ authentication pre-share
+
+
+!
+! Interface Configuration
+!
+
+
+!
+! FastEthernet0/0
+! Connection to Main Building Administration Network
+! Network: 192.168.10.0/24
+!
+
+interface FastEthernet0/0
+ ip address 192.168.10.1 255.255.255.0
+
+!
+! DHCP Relay
+! Forward DHCP requests to Server VLAN DHCP Server
+!
+
+ ip helper-address 192.168.20.2
+
+ duplex auto
+ speed auto
+
+
+!
+! FastEthernet0/1
+! Connection to Server Network
+! Network: 192.168.20.0/28
+!
+
+interface FastEthernet0/1
+ ip address 192.168.20.1 255.255.255.240
+
+!
+! Apply ACL security policy
+! Controls traffic entering Server VLAN
+!
+
+ ip access-group 10 out
+
+ duplex auto
+ speed auto
+
+
+!
+! Serial0/0/0
+! WAN connection to Lab Building Router
+! Network: 10.0.0.0/30
+!
+
+interface Serial0/0/0
+ ip address 10.0.0.1 255.255.255.252
+
+!
+! Clock rate configured because this router
+! provides DCE side of serial connection
+!
+
+ clock rate 128000
+
+
+!
+! Default VLAN interface
+!
+
+interface Vlan1
+ no ip address
+
+
+!
+! Dynamic Routing Configuration
+! OSPF Area 0
+!
+
+router ospf 1
+
+!
+! Advertise Main Building Administration Network
+!
+
+ network 192.168.10.0 0.0.0.255 area 0
+
+!
+! Advertise Server Network
+!
+
+ network 192.168.20.0 0.0.0.15 area 0
+
+!
+! Advertise WAN Link
+!
+
+ network 10.0.0.0 0.0.0.3 area 0
+
+
+!
+! Access Control List Configuration
+! Security Policy:
+! - Block Student Lab from Server VLAN
+! - Allow Director PC access
+! - Allow Administration users
+! - Allow IT Department access
+!
+
+access-list 10 deny 192.168.30.0 0.0.0.255
+
+!
+! Director PC
+! IP Address: 192.168.10.4
+!
+
+access-list 10 permit host 192.168.10.4
+
+!
+! Administration Network
+!
+
+access-list 10 permit 192.168.10.0 0.0.0.255
+
+!
+! IT Department Network
+!
+
+access-list 10 permit 192.168.40.0 0.0.0.31
+
+
+!
+! Routing Behavior
+!
+
+ip classless
+
+
+!
+! Flow Export Configuration
+!
+
+ip flow-export version 9
+
+
+!
+! Console and Remote Access
+!
+
+line con 0
+
+line aux 0
+
+line vty 0 4
+ login
+
+
+!
+! End of Configuration
+!
+
+end

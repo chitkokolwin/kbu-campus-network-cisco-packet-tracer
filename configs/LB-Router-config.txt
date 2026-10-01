@@ -1,0 +1,159 @@
+!
+! ==========================================
+! KBU Campus Network Infrastructure
+! Lab Building Router Configuration
+! Device: Cisco 1841 Router
+! Purpose: Lab Building Gateway and OSPF Routing
+! ==========================================
+!
+
+
+version 12.4
+
+
+!
+! Basic Device Configuration
+!
+
+hostname LB-Router
+
+
+!
+! Disable unnecessary services
+!
+
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+
+
+!
+! Disable Cisco Express Forwarding
+! (Packet Tracer default)
+!
+
+no ip cef
+no ipv6 cef
+
+
+!
+! Interface Configuration
+!
+
+
+!
+! FastEthernet0/0
+! Connection to Student Lab Network
+! Network: 192.168.30.0/24
+!
+
+interface FastEthernet0/0
+ ip address 192.168.30.1 255.255.255.0
+
+ duplex auto
+ speed auto
+
+
+
+!
+! FastEthernet0/1
+! Connection to IT Department Network
+! Network: 192.168.40.0/27
+!
+
+interface FastEthernet0/1
+ ip address 192.168.40.1 255.255.255.224
+
+ duplex auto
+ speed auto
+
+
+
+!
+! Serial0/0/0
+! WAN connection to Main Building Router
+! Network: 10.0.0.0/30
+!
+
+interface Serial0/0/0
+ ip address 10.0.0.2 255.255.255.252
+
+
+
+!
+! Default VLAN Interface
+! Not used in this router design
+!
+
+interface Vlan1
+ no ip address
+ shutdown
+
+
+
+!
+! Dynamic Routing Configuration
+! OSPF Single Area (Area 0)
+!
+
+
+router ospf 1
+
+
+!
+! Advertise Student Lab Network
+!
+
+ network 192.168.30.0 0.0.0.255 area 0
+
+
+!
+! Advertise IT Department Network
+!
+
+ network 192.168.40.0 0.0.0.31 area 0
+
+
+!
+! Advertise WAN Link
+!
+
+ network 10.0.0.0 0.0.0.3 area 0
+
+
+
+!
+! Routing Behavior
+!
+
+ip classless
+
+
+!
+! Flow Export Configuration
+!
+
+ip flow-export version 9
+
+
+
+!
+! Console and Remote Access
+!
+
+line con 0
+
+
+line aux 0
+
+
+line vty 0 4
+ login
+
+
+
+!
+! End of Configuration
+!
+
+end
